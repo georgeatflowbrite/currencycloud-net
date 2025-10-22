@@ -36,7 +36,7 @@ namespace CurrencyCloud
         private HttpClient httpClient;
         private Credentials credentials;
         private string onBehalfOf;
-        private const string userAgent = "CurrencyCloudSDK/2.0 .NET/8.0.0";
+        private const string userAgent = "CurrencyCloudSDK/2.0 .NET/8.1.0";
 
         internal string Token
         {
@@ -1162,6 +1162,28 @@ namespace CurrencyCloud
         public async Task<PaymentTrackingInfo> GetPaymentTrackingInfoAsync(string id)
         {
             return await RequestAsync<PaymentTrackingInfo>("/v2/payments/" + id + "/tracking_info", HttpMethod.Get, null);
+        }
+        
+        /// <summary>
+        /// Retries payment notifications.
+        /// </summary>
+        /// <param name="id">Id of payment.</param>
+        /// <param name="notificationType">Type of payment notification to retry.</param>
+        /// <returns>Asynchronous task, which initiates resend of payment notifications.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when client is not initialized.</exception>
+        /// <exception cref="ApiException">Thrown when API call fails.</exception>
+        public async Task<object> RetryPaymentNotificationsAsync(string id, string notificationType)
+        {
+            if (string.IsNullOrEmpty(id))
+                throw new ArgumentException("id cannot be null or empty");
+            if (string.IsNullOrEmpty(notificationType))
+                throw new ArgumentException("notificationType cannot be null or empty");
+            
+            var paramsObj = new ParamsObject();
+            paramsObj.Add("NotificationType", notificationType);
+            
+            return await RequestAsync<object>(
+                "/v2/payments/" + id + "/notifications/retry", HttpMethod.Post, paramsObj);
         }
 
         #endregion
