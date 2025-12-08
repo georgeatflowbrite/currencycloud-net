@@ -42,6 +42,17 @@ namespace CurrencyCloud.Tests.Mock.Data
             PaymentType = "regular"
         };
 
+        public static readonly Entity.Payment ScaPayment = new Entity.Payment(
+            "GBP",
+            "c3dafe79-9394-4f43-a1a3-b7a518ab1cba",
+            1000,
+            "SCA Payment",
+            "SCA Payment"
+            )
+        {
+            PaymentType = "regular"
+        };
+
         public static readonly Entity.Payer Payer2 = new Entity.Payer
         {
             LegalEntityType = "individual",
@@ -55,13 +66,6 @@ namespace CurrencyCloud.Tests.Mock.Data
             Country = "SE",
             DateOfBirth = new DateTime(1981, 12, 10),
             IdentificationType = "none"
-        };
-
-        public static readonly Entity.PaymentSubmission Submission1 = new Entity.PaymentSubmission
-        {
-            Status = "pending",
-            Mt103 = "{1:F01TCCLGB20AXXX0090000004}{2:I103BARCGB22XXXXN}{4: :20:20180101-ZSYWVY :23B:CRED :32A:160617GBP3000,0 :33B:GBP3000,0 :50K:/150618-00026 PCOMAPNY address New-York Province 555222 GB :53B:/20060513071472 :57C://SC200605 :59:/200605000 First Name Last Name e03036bf6c325dd12c58 London GB :70:test reference Test reason Payment group: 0160617-ZSYWVY :71A:SHA -}",
-            SubmissionRef = "MXGGYAGJULIIQKDV"
         };
 
         public static readonly Entity.PaymentSubmissionInfo SubmissionInfo1 = new Entity.PaymentSubmissionInfo

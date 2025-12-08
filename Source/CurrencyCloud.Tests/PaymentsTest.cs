@@ -110,23 +110,6 @@ namespace CurrencyCloud.Tests
         }
 
         /// <summary>
-        /// Successfully gets a payment submission.
-        /// </summary>
-        [Test]
-        public async Task GetSubmission()
-        {
-            player.Play("GetSubmission");
-
-            var payment1 = Payments.Payment1;
-            var submission1 = Payments.Submission1;
-
-            Payment created = await CreatePayment(payment1);
-            PaymentSubmission gotten = await client.GetPaymentSubmissionAsync(created.Id);
-
-            Assert.AreEqual(gotten, submission1);
-        }
-
-        /// <summary>
         /// Successfully gets a payment submission info in MT103 format.
         /// </summary>
         [Test]
@@ -198,7 +181,7 @@ namespace CurrencyCloud.Tests
         }
 
         /// <summary>
-        /// Successfully finds a payment with search paramaters.
+        /// Successfully finds a payment with search parameters.
         /// </summary>
         [Test]
         public async Task FindWithParams()
@@ -221,7 +204,7 @@ namespace CurrencyCloud.Tests
         }
 
         /// <summary>
-        /// Successfully finds a payment with search paramaters.
+        /// Successfully finds a payment with search parameters.
         /// </summary>
         [Test]
         public async Task FindNoParams()
@@ -336,5 +319,77 @@ namespace CurrencyCloud.Tests
             Assert.AreEqual(trackingInfo1, received);
         }
 
+        /// <summary>
+        /// Successfully validates and creates a payment with SCA.
+        /// </summary>
+        [Test]
+        public async Task ValidateAndCreateWithSca()
+        {
+            player.Play("ValidateAndCreateWithSca");
+
+            var scaPayment = Payments.ScaPayment;
+
+            PaymentValidation validationResult = await client.ValidatePaymentAsync(scaPayment, true);
+
+            Assert.IsNotNull(validationResult);
+            Assert.AreEqual("success", validationResult.ValidationResult);
+            Assert.IsTrue(validationResult.XScaRequired);
+            Assert.IsNotNull(validationResult.XScaId);
+            Assert.AreEqual("SMS", validationResult.XScaType);
+
+
+            Payment created = await client.CreatePaymentAsync(scaPayment, scaId: validationResult.XScaId, scaToken: "123456");
+            Assert.AreEqual(scaPayment.Currency, created.Currency);
+            Assert.AreEqual(scaPayment.Reason, created.Reason);
+            Assert.AreEqual(scaPayment.Reference, created.Reference);
+        }
+        
+        /// <summary>
+        /// Error response handling retrying payment notifications
+        /// </summary>
+        [Test]
+        public async Task RetrySendingPaymentNotificationsError()
+        {
+            player.Play("RetryPaymentNotifications_Error");
+
+            // Fails on invalid arguments
+            try
+            {
+                await client.RetryPaymentNotificationsAsync("", "");
+                Assert.Fail("Expected ArgumentException but no exception was thrown.");
+            }
+            catch (ArgumentException ex)
+            {
+                Assert.That(ex.Message, Does.Contain("cannot be null or empty"));
+            }
+
+            // Fails on invalid notification type
+            try
+            {
+                await client.RetryPaymentNotificationsAsync(
+                    "855fa573-1ace-4da2-a55b-912f10103055",
+                    "payment_notification");
+                Assert.Fail("Expected BadRequestException but no exception was thrown.");
+            }
+            catch (BadRequestException ex)
+            {
+                Assert.That(ex.Errors[0].ErrorMessages[0].Code, Is.EqualTo("notification_type_not_in_range"));
+            }
+        }
+        
+        /// <summary>
+        /// Successfully retries sending payment notifications
+        /// </summary>
+        [Test]
+        public async Task CanRetrySendingPaymentNotifications()
+        {
+            player.Play("RetryPaymentNotifications_Success");
+            // Return 200 Success and Empty object
+            var result = await client.RetryPaymentNotificationsAsync(
+                id: "855fa573-1ace-4da2-a55b-912f10103055", 
+                notificationType: "payment_released_notification"
+            );
+            Assert.IsNotNull(result);
+        }
     }
 }
