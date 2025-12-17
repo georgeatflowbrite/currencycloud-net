@@ -36,7 +36,7 @@ namespace CurrencyCloud
         private HttpClient httpClient;
         private Credentials credentials;
         private string onBehalfOf;
-        private const string userAgent = "CurrencyCloudSDK/2.0 .NET/8.1.0";
+        private const string userAgent = "CurrencyCloudSDK/2.0 .NET/9.0.0";
 
         internal string Token
         {
@@ -945,13 +945,12 @@ namespace CurrencyCloud
         /// <returns>Asynchronous task, which returns the payment validation result.</returns>
         /// <exception cref="InvalidOperationException">Thrown when client is not initialized.</exception>
         /// <exception cref="ApiException">Thrown when API call fails.</exception>
-        public async Task<PaymentValidation> ValidatePaymentAsync(Payment payment, bool scaToAuthenticatedUser = false)
+        public async Task<PaymentValidation> ValidatePaymentAsync(Payment payment, bool? scaToAuthenticatedUser = null)
         {
             ParamsObject paramsObj = ParamsObject.CreateFromStaticObject(payment);
-            var requestHeaders = new Dictionary<string, string>
-            {
-                { "x-sca-to-authenticated-user", scaToAuthenticatedUser.ToString().ToLower() }
-            };
+            var requestHeaders = scaToAuthenticatedUser.HasValue 
+                ? new Dictionary<string, string> { { "x-sca-to-authenticated-user", scaToAuthenticatedUser.Value.ToString().ToLower() } }
+                : new Dictionary<string, string>();
 
             return await RequestAsync<PaymentValidation>("/v2/payments/validate", HttpMethod.Post, paramsObj, requestHeaders);
         }
