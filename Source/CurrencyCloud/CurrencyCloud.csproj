@@ -114,6 +114,8 @@
     <Compile Include="Entity\SenderDetails.cs" />
     <Compile Include="Entity\SettlementAccount.cs" />
     <Compile Include="Entity\Account.cs" />
+    <Compile Include="Entity\AccountComplianceSettings.cs" />
+    <Compile Include="Entity\AccountCreateRequest.cs" />
     <Compile Include="Entity\Balance.cs" />
     <Compile Include="Entity\List\BeneficiaryDetailsList.cs" />
     <Compile Include="Entity\List\ConversionDatesList.cs" />
