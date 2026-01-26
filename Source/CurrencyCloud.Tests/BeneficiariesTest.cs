@@ -74,10 +74,18 @@ namespace CurrencyCloud.Tests
                 RoutingCodeValue1 = "123456",
                 BeneficiaryEntityType = "individual",
                 BeneficiaryFirstName = "Test",
-                BeneficiaryLastName = "User"
+                BeneficiaryLastName = "User",
+                PaymentType = "regular",
+                Currency = "GBP",
+                Iban = "GB33BUKB20201555555555",
+                
             });
 
-            Assert.AreEqual("confirmed", accountVerification.Answer);
+            Assert.AreEqual("full_match", accountVerification.Answer);
+            Assert.AreEqual("okay", accountVerification.ReasonType);
+            Assert.AreEqual("Test User", accountVerification.ActualName);
+            Assert.AreEqual("FMCH", accountVerification.ReasonCode);
+            Assert.AreEqual("Full match", accountVerification.Reason);
         }
 
         /// <summary>
