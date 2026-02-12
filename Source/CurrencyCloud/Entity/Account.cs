@@ -30,6 +30,13 @@ namespace CurrencyCloud.Entity
         public string LegalEntityType { get; set; }
 
         ///<summary>
+        /// Account sub type
+        ///</summary>
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Param]
+        public string LegalEntitySubType { get; set; }
+
+        ///<summary>
         /// Name of the account
         ///</summary>
         [Param]
@@ -105,6 +112,20 @@ namespace CurrencyCloud.Entity
         [Param]
         public string IdentificationValue { get; set; }
 
+        ///<summary>
+        /// Identification expiration date
+        ///</summary>
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Param]
+        public DateTime? IdentificationExpiration { get; set; }
+
+        ///<summary>
+        /// Identification issuer
+        ///</summary>
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Param]
+        public string IdentificationIssuer { get; set; }
+
         public string ShortReference { get; set; }
 
         ///<summary>
@@ -179,6 +200,7 @@ namespace CurrencyCloud.Entity
 
             return Id == account.Id &&
                    LegalEntityType == account.LegalEntityType &&
+                   LegalEntitySubType == account.LegalEntitySubType &&
                    AccountName == account.AccountName &&
                    Brand == account.Brand &&
                    YourReference == account.YourReference &&
@@ -193,6 +215,8 @@ namespace CurrencyCloud.Entity
                    UpdatedAt == account.UpdatedAt &&
                    IdentificationType == account.IdentificationType &&
                    IdentificationValue == account.IdentificationValue &&
+                   IdentificationExpiration == account.IdentificationExpiration &&
+                   IdentificationIssuer == account.IdentificationIssuer &&
                    ShortReference == account.ShortReference &&
                    ApiTrading == account.ApiTrading &&
                    OnlineTrading == account.OnlineTrading &&

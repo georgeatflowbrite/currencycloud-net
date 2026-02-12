@@ -36,7 +36,7 @@ namespace CurrencyCloud
         private HttpClient httpClient;
         private Credentials credentials;
         private string onBehalfOf;
-        private const string userAgent = "CurrencyCloudSDK/2.0 .NET/8.1.0";
+        private const string userAgent = "CurrencyCloudSDK/2.0 .NET/9.2.0";
 
         internal string Token
         {
@@ -375,6 +375,20 @@ namespace CurrencyCloud
         }
 
         /// <summary>
+        /// Creates a new account.
+        /// </summary>
+        /// <param name="accountCreateRequest">Account create request object</param>
+        /// <returns>Asynchronous task, which returns newly created account.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when client is not initialized.</exception>
+        /// <exception cref="ApiException">Thrown when API call fails.</exception>
+        public async Task<Account> CreateAccountAsync(AccountCreateRequest accountCreateRequest)
+        {
+            var paramsObj = ParamsObject.CreateFromStaticObject(accountCreateRequest);
+
+            return await RequestAsync<Account>("/v2/accounts/create", HttpMethod.Post, paramsObj);
+        }
+
+        /// <summary>
         /// Gets details of an account.
         /// </summary>
         /// <param name="id">Id of the requested account.</param>
@@ -432,6 +446,7 @@ namespace CurrencyCloud
         /// <summary>
         /// Gets payment charges settings for given account.
         /// </summary>
+        /// <param name="id">Account id to fetch PaymentChangeSettings for.</param>
         /// <returns>Asynchronous task, which returns the payment charges settings.</returns>
         /// <exception cref="InvalidOperationException">Thrown when client is not initialized.</exception>
         /// <exception cref="ApiException">Thrown when API call fails.</exception>
@@ -460,6 +475,40 @@ namespace CurrencyCloud
                 throw new ArgumentException("Charge Settings Id cannot be null");
 
             return await RequestAsync<PaymentChargesSettings>("/v2/accounts/" + accountId + "/payment_charges_settings/" + chargeSettingsId, HttpMethod.Post, optional);
+        }
+
+        /// <summary>
+        /// Gets compliance settings for given account.
+        /// </summary>
+        /// <param name="accountId">ID of the account to fetch ComplianceSettings for.</param>
+        /// <returns>Asynchronous task, which returns the AccountComplianceSettings.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when client is not initialized.</exception>
+        /// <exception cref="ApiException">Thrown when API call fails.</exception>
+        public async Task<AccountComplianceSettings> GetComplianceSettingsAsync(string accountId)
+        {
+            if (string.IsNullOrEmpty(accountId))
+                throw new ArgumentException("Account Id cannot be null");
+
+            return await RequestAsync<AccountComplianceSettings>("/v2/accounts/" + accountId + "/compliance_settings", HttpMethod.Get);
+        }
+
+        /// <summary>
+        /// Manage given Account's Compliance Settings.
+        /// </summary>
+        /// <param name="accountComplianceSettings">Account's Compliance Settings object to be updated</param>
+        /// <returns>Asynchronous task, which returns the updated account.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when client is not initialized.</exception>
+        /// <exception cref="ApiException">Thrown when API call fails.</exception>
+        public async Task<AccountComplianceSettings> ManageComplianceSettingsAsync(AccountComplianceSettings accountComplianceSettings)
+        {
+            ParamsObject optional = ParamsObject.CreateFromStaticObject(accountComplianceSettings);
+
+            string accountId = accountComplianceSettings.AccountId;
+
+            if (string.IsNullOrEmpty(accountId))
+                throw new ArgumentException("Account Id cannot be null");
+
+            return await RequestAsync<AccountComplianceSettings>("/v2/accounts/" + accountId + "/compliance_settings", HttpMethod.Post, optional);
         }
 
         #endregion
@@ -945,13 +994,12 @@ namespace CurrencyCloud
         /// <returns>Asynchronous task, which returns the payment validation result.</returns>
         /// <exception cref="InvalidOperationException">Thrown when client is not initialized.</exception>
         /// <exception cref="ApiException">Thrown when API call fails.</exception>
-        public async Task<PaymentValidation> ValidatePaymentAsync(Payment payment, bool scaToAuthenticatedUser = false)
+        public async Task<PaymentValidation> ValidatePaymentAsync(Payment payment, bool? scaToAuthenticatedUser = null)
         {
             ParamsObject paramsObj = ParamsObject.CreateFromStaticObject(payment);
-            var requestHeaders = new Dictionary<string, string>
-            {
-                { "x-sca-to-authenticated-user", scaToAuthenticatedUser.ToString().ToLower() }
-            };
+            var requestHeaders = scaToAuthenticatedUser.HasValue 
+                ? new Dictionary<string, string> { { "x-sca-to-authenticated-user", scaToAuthenticatedUser.Value.ToString().ToLower() } }
+                : new Dictionary<string, string>();
 
             return await RequestAsync<PaymentValidation>("/v2/payments/validate", HttpMethod.Post, paramsObj, requestHeaders);
         }
